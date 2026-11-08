@@ -1,4 +1,6 @@
-# Hybrid Phishing Email Analyzer
+# Email_Phising
+
+Hybrid Phishing Email Analyzer
 
 Ung dung Streamlit phan tich email phishing theo pipeline hybrid:
 

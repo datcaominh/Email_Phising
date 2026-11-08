@@ -1,0 +1,5 @@
+﻿Model,Accuracy,Precision (weighted),Recall (weighted),F1 (weighted),ROC AUC,FPR,FNR,Specificity,Train time,Predict time,TP,FP,TN,FN
+Random Forest (200 cay),97.23%,97.23%,97.23%,97.23%,0.9967,2.91%,2.61%,97.09%,155.5s,1.55s,18943,624,20785,507
+Logistic Regression,99.02%,99.02%,99.02%,99.02%,0.9992,1.01%,0.95%,98.99%,97.1s,0.03s,19265,217,21192,185
+Multinomial Naive Bayes,95.28%,95.28%,95.28%,95.28%,0.9823,4.19%,5.30%,95.81%,0.2s,0.04s,18419,897,20512,1031
+XGBoost,98.27%,98.28%,98.27%,98.27%,0.9983,1.92%,1.52%,98.08%,874.5s,0.70s,19155,410,20999,295

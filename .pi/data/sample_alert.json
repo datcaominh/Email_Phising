@@ -1,0 +1,25 @@
+{
+  "alert_id": "PHISH-YYYYMMDDHHMMSS",
+  "created_at": "ISO-8601",
+  "risk_score": 0,
+  "risk_level": "An toan",
+  "email": {
+    "filename": "",
+    "sender": "",
+    "receiver": "",
+    "subject": "",
+    "date": "",
+    "urls": []
+  },
+  "ml": {
+    "score": 0,
+    "label": 0,
+    "source": "random_forest_tfidf",
+    "signals": {}
+  },
+  "llm_analysis": "",
+  "recommended_actions": [
+    "Khong bam link khi chua xac minh.",
+    "Bao cao email dang ngo cho SecOps."
+  ]
+}

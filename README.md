@@ -6,7 +6,7 @@ Ung dung Streamlit phan tich email phishing theo pipeline hybrid:
 
 1. Parse file `.eml` hoac `.txt`.
 2. ML Engine tinh xac suat phishing bang Random Forest + TF-IDF (nguong 60%).
-3. LLM Agent dung Gemini de phan tich ngu canh.
+3. LLM Agent phan tich ngu canh email (runtime hien tich hop Google Gemini).
 4. Orchestrator tao alert JSON chuan hoa cho SecOps.
 5. Tab "Danh gia mo hinh" hien thi bang chi so, ROC curve, ma tran nham lan 4 mo hinh.
 
@@ -28,7 +28,9 @@ python -m pip install streamlit pandas scikit-learn joblib openai python-dotenv 
 Tao file `.env` tu `.env.example`:
 
 ```text
-GEMINI_API_KEY=your_gemini_api_key_here
+LLM_PROVIDER=google_gemini
+LLM_MODEL=gemini-3.6-flash
+LLM_API_KEY=your_llm_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
@@ -65,11 +67,22 @@ Schema: `sender, receiver, date, subject, body, urls, label`
 python scripts/train_ml_model.py
 ```
 
-Model se duoc luu tai:
+Model RF se duoc luu tai `app/models/phishing_rf.pkl`. De train va luu ca bon model co the chon trong UI:
+
+```powershell
+python scripts/train_model_artifacts.py
+```
+
+Script nay fit preprocessing va classifier tren toan bo tap da loc (204.294 email), sau do tao cac artifact:
 
 ```text
 app/models/phishing_rf.pkl
+app/models/phishing_lr.pkl
+app/models/phishing_xgb.pkl
+app/models/phishing_mnb.pkl
 ```
+
+UI co selectbox **Model ML dang dung** o sidebar. Lua chon duoc luu trong `config/active_model.json` va dung cho ca phan tich email thu cong va Auto Monitor. `compare_models.py` van danh gia tren holdout; artifact train toan bo corpus khong nen dung de tinh chi so test.
 
 ## So sanh 4 mo hinh (LR, XGBoost, RF, MNB)
 
@@ -112,7 +125,7 @@ python scripts/prepare_llm_data.py
 python scripts/fine_tune_llm.py
 ```
 
-Runtime app hien dung Gemini theo yeu cau; OpenAI fine-tune la script rieng cho pipeline huan luyen.
+Runtime app hien dung provider Google Gemini; provider, model va API key duoc quan ly qua cau hinh LLM. OpenAI fine-tune la script rieng cho pipeline huan luyen.
 
 ## Xem log pipeline .pi
 

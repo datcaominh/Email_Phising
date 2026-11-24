@@ -7,6 +7,7 @@ Script fine-tune OpenAI nam rieng trong scripts/fine_tune_llm.py.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -32,8 +33,11 @@ def format_email_context(email_data: Dict[str, Any], ml_result: Optional[Dict[st
     url_text = "\n".join(f"- {url}" for url in urls) if urls else "Khong phat hien URL."
     ml_text = "Chua co diem ML."
     if ml_result:
+        score = max(0, min(int(float(ml_result.get("score", 0))), 100))
+        verdict = "PHISHING" if score >= 60 else "NOT PHISHING"
         ml_text = (
-            f"Diem ML: {ml_result.get('score')}%\n"
+            f"Diem rui ro tong hop: {score}%\n"
+            f"Ket luan he thong co dinh (nguong 60%): {verdict}. Khong duoc tu y doi ket luan nay.\n"
             f"Nguon ML: {ml_result.get('source')}\n"
             f"Tin hieu ML: {ml_result.get('signals')}"
         )
@@ -72,6 +76,21 @@ def call_gemini(
     return interaction.output_text or "AI khong tra ve noi dung."
 
 
+def _pin_report_verdict(text: str, score: int, verdict: str) -> str:
+    """Keep the report's headline aligned with the system's threshold decision."""
+    lines = [
+        line for line in text.splitlines()
+        if not re.match(
+            r"^\s*(?:\d+[.)]\s*)?(?:kết luận|ket luan|điểm rủi ro|diem rui ro)\s*:",
+            line,
+            re.IGNORECASE,
+        )
+    ]
+    details = "\n".join(lines).strip()
+    headline = f"Kết luận hệ thống: {verdict} ({score}%)"
+    return f"{headline}\n\n{details}" if details else headline
+
+
 def analyze_email(
     email_data: Dict[str, Any],
     ml_result: Dict[str, Any],
@@ -85,19 +104,18 @@ def analyze_email(
 
     system_prompt = read_system_prompt()
     context = format_email_context(email_data, ml_result)
+    score = max(0, min(int(float(ml_result.get("score", 0))), 100))
+    verdict = "PHISHING" if score >= 60 else "NOT PHISHING"
     user_input = f"""
 Hay phan tich email sau theo vai tro Phishing Analyst Agent.
-Ket hop diem ML voi bang chung trong noi dung email.
+Ket hop diem rui ro voi bang chung trong noi dung email. Ket luan he thong da duoc chot la {verdict} voi diem {score}% theo nguong 60%; phai giu nguyen ket luan va diem nay. Chi giai thich bang chung, do tin cay va hanh dong; khong tu tao ket luan/diem khac.
 
-Yeu cau dau ra (THONG NHAT NHI PHAN):
-1. Ket luan: PHISHING hoac NOT PHISHING (chi chon 1)
-2. Diem rui ro: 0-100
-3. Bang chung chinh
-4. Hanh dong khuyen nghi cho SecOps va nguoi dung
+Bat dau bang dong: "Ket luan he thong: {verdict} ({score}%)". Sau do neu bang chung chinh, gioi han cua ket qua va hanh dong khuyen nghi cho SecOps/nguoi dung. Neu bang chung noi dung co ve mau thuan voi ket luan, hay mo ta su mau thuan nhu mot han che can xac minh, khong tu doi nhan.
 
 {context}
 """.strip()
-    return call_gemini(api_key, model_name, system_prompt, user_input)
+    response = call_gemini(api_key, model_name, system_prompt, user_input)
+    return _pin_report_verdict(response, score, verdict)
 
 
 def chat_about_email(

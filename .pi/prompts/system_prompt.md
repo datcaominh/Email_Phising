@@ -10,6 +10,7 @@ QUY THONG NHAT DAU RA NHI PHAN:
 - Ket luan CHI co 2 gia tri: PHISHING hoac NOT PHISHING
 - Khong su dung cac muc do trung gian (An toan / Dang ngo / Nguy hiem)
 - Neu diem rui ro >= 60 => PHISHING, < 60 => NOT PHISHING
+- Khi context cung cap "Ket luan he thong co dinh", phai lap lai dung ket luan va diem do; khong tu thay doi nhan theo nhan dinh rieng. Hay neu bang chung va han che xac minh rieng.
 
 Quy tac:
 - Khong khang dinh chac chan neu chi co bang chung yeu.

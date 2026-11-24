@@ -1,7 +1,7 @@
 """So sanh 4 model ML cho phishing email detection.
 
 Mo hinh so sanh:
-    1. Random Forest (200 cay)     - model hien tai (baseline)
+    1. Random Forest (200 cay)     - model hien tai (best measured RF candidate)
     2. Logistic Regression
     3. Multinomial Naive Bayes
     4. XGBoost
@@ -103,7 +103,7 @@ def build_models() -> dict:
             class_weight="balanced",
             random_state=42,
             n_jobs=-1,
-            max_depth=30,
+            max_depth=40,
         ),
         "Logistic Regression": LogisticRegression(
             max_iter=5000,
@@ -111,14 +111,14 @@ def build_models() -> dict:
             solver="saga",
             tol=1e-4,
         ),
-        "Multinomial Naive Bayes": MultinomialNB(alpha=1.0),
+        "Multinomial Naive Bayes": MultinomialNB(alpha=0.01),
     }
 
     if HAS_XGB:
         models["XGBoost"] = XGBClassifier(
             n_estimators=200,
             max_depth=6,
-            learning_rate=0.1,
+            learning_rate=0.2,
             subsample=0.8,
             colsample_bytree=0.8,
             random_state=42,
@@ -284,6 +284,12 @@ def main() -> None:
         t0 = time.time()
         model.fit(xtr, y_train)
         train_time = time.time() - t0
+        if hasattr(model, "n_iter_"):
+            actual_iterations = int(model.n_iter_[0])
+            print(
+                f"      Solver iterations: {actual_iterations} / "
+                f"max_iter={model.max_iter}"
+            )
 
         # Predict
         t0 = time.time()

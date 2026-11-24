@@ -78,7 +78,7 @@ def main() -> None:
                     class_weight="balanced",
                     random_state=42,
                     n_jobs=-1,
-                    max_depth=30,
+                    max_depth=40,
                 ),
             ),
         ]

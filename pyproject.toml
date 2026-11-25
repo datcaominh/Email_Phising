@@ -22,3 +22,4 @@ packages = ["app"]
 
 [tool.poetry]
 authors = ["Cao Minh Đạt"]
+package-mode = false
